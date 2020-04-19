@@ -43,8 +43,8 @@ Use Cloud Shell to clone the valkyrie-app source code repository (it is in your
 project).
 The app source code is in valkyrie-app/source. Create valkyrie-app/Dockerfile and
 add the configuration below.
-
-**gsutil cat gs://cloud-training/gsp318/marking/setup_marking.sh | bash
+```
+gsutil cat gs://cloud-training/gsp318/marking/setup_marking.sh | bash
 gcloud source repos clone valkyrie-app
 cd valkyrie-app
 cat > Dockerfile <<EOF
@@ -55,7 +55,8 @@ RUN go install -v
 ENTRYPOINT [“app”,”-single=true”,”-port=8080"]
 EOF
 docker build -t valkyrie-app:v0.0.1 .
-step1.sh**
+step1.sh
+```
 
 # Task 2: Test the created Docker image
 
@@ -67,8 +68,10 @@ Once you have your container running, and before clicking **Check my progress** 
 run step2.sh to perform the local check of your work. After you get a successful
 response from the local marking you can check your progress.
 
-**docker run -p 8080:8080 valkyrie-app:v0.0.1 &
-step2.sh**
+```
+docker run -p 8080:8080 valkyrie-app:v0.0.1 &
+step2.sh
+```
 
 # Task 3: Push the Docker image in the
 
@@ -78,8 +81,10 @@ Push the Docker image **valkyrie-app:v0.0.1** into the Container Registry.
 Make sure you re-tag the container to gcr.io/YOUR_PROJECT/valkyrie-
 app:v0.0.1
 
-**docker tag valkyrie-app:v0.0.1 gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1
-docker push gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1**
+```
+docker tag valkyrie-app:v0.0.1 gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1
+docker push gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1
+```
 
 # Task 4: Create and expose a deployment in
 
@@ -95,14 +100,14 @@ the deployment.yaml and service.yaml files. Kurt thinks they need some values se
 thinks he left some placeholder values).
 You can check the load balancer once it’s available.
 
-**sed -i s#IMAGE_HERE#gcr.io/\$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1#gk8s/deployment.yaml
+```
+sed -i s#IMAGE_HERE#gcr.io/\$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.1#gk8s/deployment.yaml
 gcloud container clusters get-credentials valkyrie-dev --zone us-east1-d
 kubectl create -f k8s/deployment.yaml
-kubectl create -f k8s/service.yaml**
+kubectl create -f k8s/service.yaml
+```
 
 # Task 5: Update the deployment with a new
-
-# version of valkyrie-app
 
 Before deploying the new code, increase the replicas from 1 to 3 to ensure you don’t
 cause an outage.
@@ -113,23 +118,25 @@ Build the new code as version v0.0.2 of valkyrie-app, push the updated image to 
 Container Repository, and then redeploy to the valkyrie-dev cluster. You will know
 you have the new v0.0.2 version because the titles for the cards will be green.
 
-**git merge origin/kurt-dev
-kubectl edit deployment valkyrie-dev**
+```
+git merge origin/kurt-dev
+kubectl edit deployment valkyrie-dev
+```
+<em>change replicas from 1 to 3</em>
+```
+docker build -t gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.2 .
+docker push gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.2
+```
+<em>vim commands</em>
 
-##### change replicas from 1 to 3
+**i - insert, esc - enter command mode, :wq - write and quit (save/exit)**
 
-**docker build -t gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.2 .
-docker push gcr.io/$DEVSHELL_PROJECT_ID/valkyrie-app:v0.0.2**
-
-##### <em>vim commands</em> **i - insert, esc - enter command mode, :wq - write and quit (save/exit)**
-
-**kubectl edit deployment valkyrie-dev**
-
-##### change 0.0.1 to 0.0.2 in two places
+```
+kubectl edit deployment valkyrie-dev
+```
+<em>change 0.0.1 to 0.0.2 in two places</em>
 
 # Task 6: Create a pipeline in Jenkins to deploy
-
-## your app
 
 This process of building the container and pushing to the container repository can be
 automated using Jenkins. There is a Jenkins deployment in your valkyrie-dev cluster
@@ -153,76 +160,76 @@ automated using Jenkins. There is a Jenkins deployment in your valkyrie-dev clus
   just monitor the process). The build will replace the running containers with
   containers with different tags; you will see orange colored headings.
 
-**docker ps**
-
-##### get container id
-
-**docker kill <container_id>
+```
+docker ps
+//get container id
+docker kill <container_id>
 export POD_NAME=$(kubectl get pods --namespace default -l
 “app.kubernetes.io/component=jenkins-master” -l
 “app.kubernetes.io/instance=cd” -o
 jsonpath=”{.items[0].metadata.name}”)
+
 // or use kubectl get pods -o wide and assign to POD_NAME=<jenkins_pod_name>
+
 kubectl port-forward $POD_NAME 8080:8080 >> /dev/null &
-kubectl get secret cd-jenkins -o jsonpath=”{.data.jenkins-admin-password}” | base64 --decode**
+kubectl get secret cd-jenkins -o jsonpath=”{.data.jenkins-admin-password}” | base64 --decode
+```
 
-##### Open web-preview and login as admin with password from last command
+> Open web-preview and login as admin with password from last command
 
-##### click credentials -> Jenkins -> Global Credentials
+> click credentials -> Jenkins -> Global Credentials
 
-##### Click add credentials
+> Click add credentials
 
-##### select Google Service Account from metadata
+> select Google Service Account from metadata
 
-##### Click ok
+> Click ok
 
-##### Click jenkins (top left)
+> Click jenkins (top left)
 
-##### Click new item
+> Click new item
 
-##### enter name **valkyrie-app**
+> enter name ```valkyrie-app```
 
-##### select pipeline
+> select pipeline
 
-##### click ok
+> click ok
 
-##### select pipeline script from SCM
+> select pipeline script from SCM
 
-##### Set SCM to Git
+> Set SCM to Git
 
-##### Add the source code repo url ( find it using **gcloud source repos list**)
+> Add the source code repo url (find it using ```gcloud source repos list```)
 
-##### Set credentials to <qwiklabs-id>
+> Set credentials to <qwiklabs-id>
+  
+> Click save
 
-##### Click save
+> Go back to cloud console and do next steps
 
-#### Go back to cloud console and do next steps
+> Update project in Jenkinsfile
 
-##### Update project in Jenkinsfile
+```
+vim Jenkinsfile
+```
+> Change card Green Color to Orange
+```
+cd source
+vim html.go
+```
 
-##### <em>vim commands</em> **i - insert, esc - enter command mode, :wq - write and quit (save/exit)**
-
-**vim Jenkinsfile**
-
-##### Change color
-
-**cd source**
-
-##### <em>vim commands</em> **i - insert, esc - enter command mode, :wq - write and quit (save/exit)**
-
-**vim html.go**
-
-##### Change card Green Color to Orange
-
-**cd ..
+> Push changes to git
+```
+cd ..
 git config --global user.email “you@example.com”
 git config --global user.name “student”
 git add.
 git commit -m “build pipeline init”
-git push**
+git push
+```
 
 #### Initial build takes a while, just navigate to cloud-build -> Build History to complete
 
 #### Then go to jenkins check applications -> pipelines -> builds and proceed with push to production of any running build
 
-# Enjoy successful lab completion...
+## Enjoy successful lab completion...
