@@ -142,11 +142,5 @@ gsutil cp map.jpg gs://kraken-bucket01/
 
 - Access the IAM & ADMIN > IAM
 - Filter by the username
-- Edit and remove all roles
+- Edit and remove Viewer role
 - Takes few seconds to update
-
-# Personal feedback
-
-- Not a really interesting labs. Very straightforward. I was done in 10 minutes instead of 60 minutes.
-- Cloud functions are interesting, but limited to node js code
-- I'd like to see how to use the Pub/Sub with a cluster of App engines. See if I can use it the same way as Kafka
