@@ -1,4 +1,4 @@
-#Game
+<img src="/Challenge%20Badge.png" width="150" alt="Challenge Badge" align="center">
 
 # Qwiklabs Challenge Speedrun Solution
 ### A fun game for you to test your GCP Skills. Challenge yourself to complete each task as quickly and accurately as possible.
